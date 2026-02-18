@@ -14,3 +14,17 @@ Image Storage: Cloudinary
 Hosting: Vercel + Render
 
 Version Control: GitHub
+
+# Core Features (MVP Only)
+
+View perfumes
+
+Filter by notes
+
+View perfume detail page
+
+User signup/login
+
+Leave reviews
+
+Rate perfumes
