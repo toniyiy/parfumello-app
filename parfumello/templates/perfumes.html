@@ -1,0 +1,14 @@
+<!DOCTYPE html>
+<html>
+<body>
+
+<h1>Perfumes</h1>
+  
+<ul>
+  {% for x in perfumes %}
+    <li>{{ x.name }} - {{ x.brand }}</li>
+  {% endfor %}
+</ul>
+
+</body>
+</html>
