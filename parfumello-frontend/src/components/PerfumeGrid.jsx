@@ -44,7 +44,6 @@ function PerfumeGrid({ perfumes, perfumeImages, loading, error }) {
             <PerfumeCard
               key={perfume.id}
               perfume={perfume}
-              image={perfumeImages[index % perfumeImages.length]}
             />
           ))}
         </div>

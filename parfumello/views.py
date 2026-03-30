@@ -7,6 +7,7 @@ from . import models
 from .serializers import (PerfumeListSerializer, PerfumeDetailSerializer, 
     BrandSerializer, NoteSerializer, ReviewSerializer, UserSerializer
 )
+from .permissions import IsOwner
 
 
 def index(request):
@@ -64,3 +65,10 @@ class PerfumeDetailViewSet(generics.RetrieveAPIView):
     queryset = models.Perfume.objects.all().select_related('brand').prefetch_related('notes', 'reviews')
     serializer_class = PerfumeDetailSerializer
     permission_classes = [permissions.AllowAny] 
+
+class ReviewCreateUpdateViewSet(generics.CreateAPIView, generics.UpdateAPIView):
+    queryset = models.UserReview.objects.all().select_related('perfume', 'user')
+    serializer_class = ReviewSerializer
+    permission_classes = [permissions.IsAuthenticated, IsOwner]
+    def perform_create(self, serializer):
+        serializer.save(user=self.request.user)

@@ -7,6 +7,7 @@ function Navbar() {
   const [shopOpen, setShopOpen] = useState(false);
   const [mensPerfumes, setMensPerfumes] = useState([]);
   const [womensPerfumes, setWomensPerfumes] = useState([]);
+  const [unisexPerfumes, setUnisexPerfumes] = useState([]);
 
   const perfumeImages = [
     "https://images.unsplash.com/photo-1770301410072-f6ef6dad65b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwZXJmdW1lJTIwYm90dGxlJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzM4MTA1NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
@@ -37,11 +38,16 @@ function Navbar() {
           data.filter((perfume) => perfume.sex?.toLowerCase() === "female")
         ).slice(0, 2);
 
+        const unisex = shuffleArray(
+          data.filter((perfume) => perfume.sex?.toLowerCase() === "unisex")
+        ).slice(0, 2);
+
         setMensPerfumes(men);
         setWomensPerfumes(women);
+        setUnisexPerfumes(unisex);
       })
       .catch((err) => {
-        console.error("Failed to fetch perfumes for navbar dropdown:", err);
+        console.error("Failed to fetch perfumes:", err);
       });
   }, []);
 
@@ -99,6 +105,12 @@ function Navbar() {
                         >
                           Women&apos;s Perfumes
                         </Link>
+                        <Link
+                          to="/shop/unisex"
+                          className="text-gray-800 hover:text-rose-900 transition-colors"
+                        >
+                          Unisex Perfumes
+                        </Link>
                       </div>
                     </div>
 
@@ -116,7 +128,7 @@ function Navbar() {
                               className="flex items-center gap-3 group"
                             >
                               <img
-                                src={perfume.image || getFallbackImage(perfume.id)}
+                                src={perfume.display_photo || "/placeholder.jpg"}
                                 alt={perfume.name}
                                 className="w-16 h-16 object-cover rounded-2xl border border-rose-100"
                               />
@@ -152,7 +164,7 @@ function Navbar() {
                               className="flex items-center gap-3 group"
                             >
                               <img
-                                src={perfume.image || getFallbackImage(perfume.id)}
+                                src={perfume.display_photo || "/placeholder.jpg"}
                                 alt={perfume.name}
                                 className="w-16 h-16 object-cover rounded-2xl border border-rose-100"
                               />

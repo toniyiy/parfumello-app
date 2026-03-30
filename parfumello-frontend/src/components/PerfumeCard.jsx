@@ -38,9 +38,9 @@ function PerfumeCard({ perfume, image }) {
       <div className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer">
         <div className="relative h-64 bg-gradient-to-br from-rose-100 to-amber-50 overflow-hidden">
           <img
-            src={image}
+            src={perfume.display_photo || "/placeholder.jpg"}
             alt={perfume.name}
-            className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-300"
+            className="w-full h-64 object-cover"
           />
           <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full">
             <span className="text-rose-900 font-semibold text-sm">New</span>

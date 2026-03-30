@@ -47,12 +47,15 @@ class UserReview(models.Model):
     perfume = models.ForeignKey(Perfume, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
     created_at = models.DateTimeField(auto_now_add=True)
+    comment = models.TextField()
     rating = models.IntegerField(
         validators=[
             MinValueValidator(1),
             MaxValueValidator(5)
         ]
     )
-    comment = models.TextField()
+    
+    class Meta:
+        unique_together = ('perfume', 'user')
     def __str__(self):
         return f"{self.user.username} - {self.perfume.name} ({self.rating}/5)"

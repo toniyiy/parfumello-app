@@ -28,10 +28,16 @@ class PerfumeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfume
-        fields = ["id", "name", "brand", "average_rating", "price", "sex"]
+        fields = ["id", "name", "brand", "average_rating", "price", "sex", "display_photo"]
 
     def get_average_rating(self, obj):
         return obj.average_rating()
+    
+    def get_image_url(self, obj):
+        request = self.context.get('request')
+        if obj.display_photo and request:
+            return request.build_absolute_uri(obj.display_photo.url)
+        return None
 
 class PerfumeDetailSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)
@@ -41,7 +47,14 @@ class PerfumeDetailSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfume
-        fields = ["id", "name", "brand", "release_year", "description", "notes", "reviews", "average_rating", "price", "sex"]
+        fields = ["id", "name", "brand", "release_year", "description", "notes", "reviews", "average_rating", "price", "sex", "display_photo"]
     
     def get_average_rating(self, obj):
         return obj.average_rating()
+    
+    def get_image_url(self, obj):
+        request = self.context.get("request")
+        if obj.display_photo and request:
+            return request.build_absolute_uri(obj.display_photo.url)
+        return None
+    
