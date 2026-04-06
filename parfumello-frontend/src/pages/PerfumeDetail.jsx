@@ -93,7 +93,7 @@ function PerfumeDetail() {
           <div className="rounded-3xl overflow-hidden bg-white/70 backdrop-blur-sm shadow-lg border border-rose-100">
             <div className="h-[520px] bg-gradient-to-br from-rose-100 to-amber-50">
               <img
-                src={perfume.display_photo || "/placeholder.jpg"}
+                src={perfume.image_url || "/placeholder.jpg"}
                 alt={perfume.name}
                 className="w-full h-full object-cover"
               />

@@ -38,7 +38,7 @@ function PerfumeCard({ perfume, image }) {
       <div className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer">
         <div className="relative h-64 bg-gradient-to-br from-rose-100 to-amber-50 overflow-hidden">
           <img
-            src={perfume.display_photo || "/placeholder.jpg"}
+            src={perfume.image_url || "/placeholder.jpg"}
             alt={perfume.name}
             className="w-full h-64 object-cover"
           />

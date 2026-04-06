@@ -1,14 +1,22 @@
-from django.shortcuts import render
 from django.http import HttpResponse
 from django.template import loader
+
 from django_filters.rest_framework import FilterSet, CharFilter
-from rest_framework import viewsets, permissions, generics
+from django.contrib.auth import get_user_model
+from rest_framework import viewsets, permissions, generics, status
+from rest_framework.response import Response
+from rest_framework.views import APIView
+from rest_framework.decorators import action
+
 from . import models
-from .serializers import (PerfumeListSerializer, PerfumeDetailSerializer, 
-    BrandSerializer, NoteSerializer, ReviewSerializer, UserSerializer
+from .serializers import (
+    PerfumeListSerializer, PerfumeDetailSerializer,
+    BrandSerializer, NoteSerializer, ReviewSerializer,
+    ProfileSerializer, RegisterSerializer
 )
 from .permissions import IsOwner
 
+User = get_user_model()
 
 def index(request):
     return HttpResponse("Welcome to Parfumello!")
@@ -72,3 +80,56 @@ class ReviewCreateUpdateViewSet(generics.CreateAPIView, generics.UpdateAPIView):
     permission_classes = [permissions.IsAuthenticated, IsOwner]
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
+
+class RegisterView(generics.CreateAPIView):
+    serializer_class = RegisterSerializer
+    permission_classes = [permissions.AllowAny]
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        user = serializer.save()
+        return Response(
+            {"detail": "Account created successfully.", "username": user.username},
+            status=status.HTTP_201_CREATED
+        )
+
+
+class ProfileView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def get(self, request):
+        profile = request.user.profile
+        serializer = ProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data)
+
+
+class ProfileViewSet(viewsets.ViewSet):
+    permission_classes = [permissions.IsAuthenticated]
+
+    def list(self, request):
+        profile = request.user.profile
+        serializer = ProfileSerializer(profile, context={'request': request})
+        return Response(serializer.data)
+
+    @action(detail=False, methods=['post'])
+    def add_favorite(self, request):
+        perfume_id = request.data.get('perfume_id')
+
+        try:
+            perfume = models.Perfume.objects.get(id=perfume_id)
+            request.user.profile.favorite_perfumes.add(perfume)
+            return Response({"status": "added"})
+        except models.Perfume.DoesNotExist:
+            return Response({"error": "Perfume not found"}, status=status.HTTP_404_NOT_FOUND)
+
+    @action(detail=False, methods=['post'])
+    def remove_favorite(self, request):
+        perfume_id = request.data.get('perfume_id')
+
+        try:
+            perfume = models.Perfume.objects.get(id=perfume_id)
+            request.user.profile.favorite_perfumes.remove(perfume)
+            return Response({"status": "removed"})
+        except models.Perfume.DoesNotExist:
+            return Response({"error": "Perfume not found"}, status=status.HTTP_404_NOT_FOUND)

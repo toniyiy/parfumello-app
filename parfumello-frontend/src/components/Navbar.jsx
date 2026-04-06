@@ -128,7 +128,7 @@ function Navbar() {
                               className="flex items-center gap-3 group"
                             >
                               <img
-                                src={perfume.display_photo || "/placeholder.jpg"}
+                                src={perfume.image_url || "/placeholder.jpg"}
                                 alt={perfume.name}
                                 className="w-16 h-16 object-cover rounded-2xl border border-rose-100"
                               />

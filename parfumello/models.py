@@ -1,7 +1,8 @@
-from random import choices
-
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
+from django.conf import settings
+from django.db.models.signals import post_save
+from django.dispatch import receiver
 # Create your models here.
 
 class Brand(models.Model):
@@ -23,29 +24,32 @@ class Perfume(models.Model):
     description = models.TextField()
     notes = models.ManyToManyField(Note, related_name='perfumes')
     display_photo = models.ImageField(upload_to='display_photos/', null=True, blank=True)
-    review = models.ManyToManyField('UserReview', related_name='perfumes', blank=True)
     average_rating = models.FloatField(default=0.0)
     price = models.FloatField(default=0.0)
     sex = models.CharField(max_length=20, choices=[('male', 'Male'), ('female', 'Female'), ('unisex', 'Unisex')], default='unisex')
-    def average_rating(self):
+    def get_average_rating(self):
         reviews = self.reviews.all()
-        if reviews:
+        if reviews.exists():
             return round(sum(review.rating for review in reviews) / reviews.count(), 2)
-        return None
+        return 0.0
     def __str__(self):
         return f"{self.name} - {self.brand.name}"
-    
-class User(models.Model):
-    username = models.CharField(max_length=100)
-    email = models.EmailField()
+
+class Profile(models.Model):
+    user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
     favorite_perfumes = models.ManyToManyField(Perfume, related_name='fans')
     profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     def __str__(self):
-        return self.username
+        return self.user.username
+
+@receiver(post_save, sender=settings.AUTH_USER_MODEL)
+def create_user_profile(sender, instance, created, **kwargs):
+    if created:
+        Profile.objects.create(user=instance)
 
 class UserReview(models.Model):
     perfume = models.ForeignKey(Perfume, on_delete=models.CASCADE, related_name='reviews')
-    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='reviews')
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')
     created_at = models.DateTimeField(auto_now_add=True)
     comment = models.TextField()
     rating = models.IntegerField(
@@ -54,7 +58,7 @@ class UserReview(models.Model):
             MaxValueValidator(5)
         ]
     )
-    
+
     class Meta:
         unique_together = ('perfume', 'user')
     def __str__(self):

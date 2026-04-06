@@ -1,5 +1,9 @@
 from rest_framework import serializers
-from .models import Perfume, Brand, Note, User, UserReview
+from django.contrib.auth import get_user_model
+from django.contrib.auth.password_validation import validate_password
+from .models import Perfume, Brand, Note, Profile, UserReview
+
+User = get_user_model()
 
 class BrandSerializer(serializers.ModelSerializer):
     class Meta:
@@ -14,10 +18,35 @@ class NoteSerializer(serializers.ModelSerializer):
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
         model = User
-        fields = ["id", "username", "email", "favorite_perfumes", "profile_pic"]
+        fields = ["id", "username", "email"]
+
+class RegisterSerializer(serializers.ModelSerializer):
+    password = serializers.CharField(write_only=True, required=True, validators=[validate_password])
+    password2 = serializers.CharField(write_only=True, required=True, label="Confirm password")
+
+    class Meta:
+        model = User
+        fields = ["username", "email", "password", "password2"]
+
+    def validate(self, attrs):
+        if attrs["password"] != attrs["password2"]:
+            raise serializers.ValidationError({"password": "Passwords do not match."})
+        return attrs
+
+    def create(self, validated_data):
+        validated_data.pop("password2")
+        user = User.objects.create_user(**validated_data)
+        return user
+
+class ProfileSerializer(serializers.ModelSerializer):
+    user = UserSerializer(read_only=True)
+
+    class Meta:
+        model = Profile
+        fields = ["user", "favorite_perfumes", "profile_pic"]
 
 class ReviewSerializer(serializers.ModelSerializer):
-    user = UserSerializer() 
+    user = UserSerializer(read_only=True) 
     class Meta:
         model = UserReview
         fields = ["id", "user", "perfume", "rating", "comment", "created_at"]
@@ -25,13 +54,15 @@ class ReviewSerializer(serializers.ModelSerializer):
 
 class PerfumeListSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)
+    average_rating = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Perfume
-        fields = ["id", "name", "brand", "average_rating", "price", "sex", "display_photo"]
+        fields = ["id", "name", "brand", "average_rating", "price", "sex", "image_url"]
 
     def get_average_rating(self, obj):
-        return obj.average_rating()
+        return obj.get_average_rating()
     
     def get_image_url(self, obj):
         request = self.context.get('request')
@@ -44,13 +75,14 @@ class PerfumeDetailSerializer(serializers.ModelSerializer):
     notes = NoteSerializer(many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
+    image_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Perfume
-        fields = ["id", "name", "brand", "release_year", "description", "notes", "reviews", "average_rating", "price", "sex", "display_photo"]
+        fields = ["id", "name", "brand", "release_year", "description", "notes", "reviews", "average_rating", "price", "sex", "image_url"]
     
     def get_average_rating(self, obj):
-        return obj.average_rating()
+        return obj.get_average_rating()
     
     def get_image_url(self, obj):
         request = self.context.get("request")
