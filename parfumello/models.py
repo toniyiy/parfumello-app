@@ -24,7 +24,6 @@ class Perfume(models.Model):
     description = models.TextField()
     notes = models.ManyToManyField(Note, related_name='perfumes')
     display_photo = models.ImageField(upload_to='display_photos/', null=True, blank=True)
-    average_rating = models.FloatField(default=0.0)
     price = models.FloatField(default=0.0)
     sex = models.CharField(max_length=20, choices=[('male', 'Male'), ('female', 'Female'), ('unisex', 'Unisex')], default='unisex')
     def get_average_rating(self):
@@ -37,7 +36,7 @@ class Perfume(models.Model):
 
 class Profile(models.Model):
     user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='profile')
-    favorite_perfumes = models.ManyToManyField(Perfume, related_name='fans')
+    favorite_perfumes = models.ManyToManyField(Perfume, related_name='fans', blank=True)
     profile_pic = models.ImageField(upload_to='profile_pics/', null=True, blank=True)
     def __str__(self):
         return self.user.username

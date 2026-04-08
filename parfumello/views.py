@@ -56,7 +56,12 @@ class PerfumeViewSet(viewsets.ReadOnlyModelViewSet):
 class ReviewViewSet(viewsets.ModelViewSet):
     queryset = models.UserReview.objects.all().select_related('perfume', 'user')
     serializer_class = ReviewSerializer
-    permission_classes = [permissions.IsAuthenticatedOrReadOnly]
+
+    def get_permissions(self):
+        if self.action in ['update', 'partial_update', 'destroy']:
+            return [permissions.IsAuthenticated(), IsOwner()]
+        return [permissions.IsAuthenticatedOrReadOnly()]
+
     def perform_create(self, serializer):
         serializer.save(user=self.request.user)
 

@@ -1,27 +1,25 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { Search, ShoppingBag, User, ChevronDown } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Search, ShoppingBag, User, ChevronDown, LogOut } from "lucide-react";
+import { Link, useNavigate } from "react-router-dom";
+import { useAuth } from "../context/AuthContext";
+import { useCart } from "../context/CartContext";
+import CartDrawer from "./CartDrawer";
+import SearchModal from "./SearchModal";
 
 function Navbar() {
+  const { user, logout } = useAuth();
+  const { totalItems } = useCart();
+  const navigate = useNavigate();
   const [shopOpen, setShopOpen] = useState(false);
+  const [cartOpen, setCartOpen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const [mensPerfumes, setMensPerfumes] = useState([]);
   const [womensPerfumes, setWomensPerfumes] = useState([]);
   const [unisexPerfumes, setUnisexPerfumes] = useState([]);
 
-  const perfumeImages = [
-    "https://images.unsplash.com/photo-1770301410072-f6ef6dad65b2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxsdXh1cnklMjBwZXJmdW1lJTIwYm90dGxlJTIwZWxlZ2FudHxlbnwxfHx8fDE3NzM4MTA1NTJ8MA&ixlib=rb-4.1.0&q=80&w=1080",
-    "https://images.unsplash.com/photo-1733235014618-eb4c22fabec2?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxtb2Rlcm4lMjBwZXJmdW1lJTIwYm90dGxlcyUyMHBpbmt8ZW58MXx8fHwxNzczOTE4ODUzfDA&ixlib=rb-4.1.0&q=80&w=1080",
-    "https://images.unsplash.com/photo-1769038937200-723ce34d83d8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxkZXNpZ25lciUyMGZyYWdyYW5jZSUyMGJvdHRsZSUyMGdvbGR8ZW58MXx8fHwxNzczOTE4ODU0fDA&ixlib=rb-4.1.0&q=80&w=1080",
-    "https://images.unsplash.com/photo-1676139412671-00742a9920a8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3Nzg4Nzd8MHwxfHNlYXJjaHwxfHxwZXJmdW1lJTIwYm90dGxlJTIwZmxvcmFsJTIwYmFja2dyb3VuZHxlbnwxfHx8fDE3NzM5MTg4NTN8MA&ixlib=rb-4.1.0&q=80&w=1080",
-  ];
-
   const shuffleArray = (array) => {
     return [...array].sort(() => Math.random() - 0.5);
-  };
-
-  const getFallbackImage = (id) => {
-    return perfumeImages[(id - 1) % perfumeImages.length];
   };
 
   useEffect(() => {
@@ -52,6 +50,7 @@ function Navbar() {
   }, []);
 
   return (
+    <>
     <nav className="bg-white/80 backdrop-blur-md border-b border-rose-100 sticky top-0 z-50">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
@@ -164,7 +163,7 @@ function Navbar() {
                               className="flex items-center gap-3 group"
                             >
                               <img
-                                src={perfume.display_photo || "/placeholder.jpg"}
+                                src={perfume.image_url || "/placeholder.jpg"}
                                 alt={perfume.name}
                                 className="w-16 h-16 object-cover rounded-2xl border border-rose-100"
                               />
@@ -206,24 +205,58 @@ function Navbar() {
           </div>
 
           <div className="flex items-center space-x-4">
-            <button className="p-2 hover:bg-rose-50 rounded-full transition-colors">
+            <button
+              onClick={() => setSearchOpen(true)}
+              className="p-2 hover:bg-rose-50 rounded-full transition-colors"
+              title="Search"
+            >
               <Search className="w-5 h-5 text-gray-700" />
             </button>
 
-            <button className="p-2 hover:bg-rose-50 rounded-full transition-colors">
-              <User className="w-5 h-5 text-gray-700" />
-            </button>
+            {user ? (
+              <div className="flex items-center gap-3">
+                <span className="text-sm text-gray-700 hidden md:block">
+                  {user.username}
+                </span>
+                <button
+                  onClick={() => { logout(); navigate("/"); }}
+                  className="p-2 hover:bg-rose-50 rounded-full transition-colors"
+                  title="Sign out"
+                >
+                  <LogOut className="w-5 h-5 text-gray-700" />
+                </button>
+              </div>
+            ) : (
+              <Link
+                to="/login"
+                className="p-2 hover:bg-rose-50 rounded-full transition-colors"
+                title="Sign in"
+              >
+                <User className="w-5 h-5 text-gray-700" />
+              </Link>
+            )}
 
-            <button className="p-2 hover:bg-rose-50 rounded-full transition-colors relative">
+            <button
+              onClick={() => setCartOpen(true)}
+              className="p-2 hover:bg-rose-50 rounded-full transition-colors relative"
+              title="Cart"
+            >
               <ShoppingBag className="w-5 h-5 text-gray-700" />
-              <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 rounded-full text-white text-xs flex items-center justify-center">
-                0
-              </span>
+              {totalItems > 0 && (
+                <span className="absolute top-0 right-0 w-4 h-4 bg-rose-500 rounded-full text-white text-xs flex items-center justify-center">
+                  {totalItems}
+                </span>
+              )}
             </button>
           </div>
+
         </div>
       </div>
     </nav>
+
+    <SearchModal open={searchOpen} onClose={() => setSearchOpen(false)} />
+    <CartDrawer open={cartOpen} onClose={() => setCartOpen(false)} />
+    </>
   );
 }
 

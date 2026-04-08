@@ -1,5 +1,6 @@
 import { Star } from "lucide-react";
 import { Link } from "react-router-dom";
+import { useCart } from "../context/CartContext";
 
 const StarRating = ({ rating, size = 20 }) => {
   return (
@@ -33,6 +34,7 @@ const StarRating = ({ rating, size = 20 }) => {
 };
 
 function PerfumeCard({ perfume, image }) {
+  const { addToCart } = useCart();
   return (
     <Link to={`/perfumes/${perfume.id}`}>
       <div className="group bg-white rounded-xl shadow-md hover:shadow-2xl transition-all duration-300 overflow-hidden cursor-pointer">
@@ -70,7 +72,10 @@ function PerfumeCard({ perfume, image }) {
                   ? `$${perfume.price}`
                   : "Price unavailable"}
             </span>
-            <button className="bg-rose-900 text-white px-4 py-2 rounded-full hover:bg-rose-800 transition-colors">
+            <button
+              onClick={(e) => { e.preventDefault(); addToCart(perfume); }}
+              className="bg-rose-900 text-white px-4 py-2 rounded-full hover:bg-rose-800 transition-colors"
+            >
               Add to Cart
             </button>
           </div>
