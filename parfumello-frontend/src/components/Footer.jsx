@@ -1,8 +1,10 @@
+import { Link } from "react-router-dom";
+
 function Footer() {
   return (
     <footer className="bg-rose-900 text-white mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+        <div className="grid grid-cols-1 md:grid-cols-5 gap-8">
           <div>
             <h3 className="text-2xl font-serif mb-4">Parfumello</h3>
             <p className="text-rose-200">Your destination for luxury fragrances</p>
@@ -11,9 +13,19 @@ function Footer() {
           <div>
             <h4 className="font-semibold mb-4">Shop</h4>
             <ul className="space-y-2 text-rose-200">
-              <li><a href="#" className="hover:text-white transition-colors">New Arrivals</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Best Sellers</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Gift Sets</a></li>
+              <li><Link to="/shop/new" className="hover:text-white transition-colors">New Arrivals</Link></li>
+              <li><Link to="/shop" className="hover:text-white transition-colors">All Perfumes</Link></li>
+              <li><Link to="/shop/men" className="hover:text-white transition-colors">Men's</Link></li>
+              <li><Link to="/shop/women" className="hover:text-white transition-colors">Women's</Link></li>
+              <li><Link to="/shop/unisex" className="hover:text-white transition-colors">Unisex</Link></li>
+            </ul>
+          </div>
+
+          <div>
+            <h4 className="font-semibold mb-4">Company</h4>
+            <ul className="space-y-2 text-rose-200">
+              <li><Link to="/about" className="hover:text-white transition-colors">About</Link></li>
+              <li><Link to="/contact" className="hover:text-white transition-colors">Contact</Link></li>
             </ul>
           </div>
 
@@ -31,7 +43,6 @@ function Footer() {
             <ul className="space-y-2 text-rose-200">
               <li><a href="#" className="hover:text-white transition-colors">Instagram</a></li>
               <li><a href="#" className="hover:text-white transition-colors">Facebook</a></li>
-              <li><a href="#" className="hover:text-white transition-colors">Contact Us</a></li>
             </ul>
           </div>
         </div>

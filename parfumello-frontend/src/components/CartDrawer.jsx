@@ -1,8 +1,10 @@
 import { X, Trash2, Plus, Minus, ShoppingBag } from "lucide-react";
+import { useNavigate } from "react-router-dom";
 import { useCart } from "../context/CartContext";
 
 function CartDrawer({ open, onClose }) {
   const { items, removeFromCart, updateQuantity, totalPrice, clearCart } = useCart();
+  const navigate = useNavigate();
 
   return (
     <>
@@ -112,7 +114,10 @@ function CartDrawer({ open, onClose }) {
                 ${totalPrice.toFixed(2)}
               </span>
             </div>
-            <button className="w-full bg-rose-900 text-white py-3 rounded-full hover:bg-rose-800 transition-colors font-semibold text-sm mb-2">
+            <button
+              onClick={() => { onClose(); navigate("/checkout"); }}
+              className="w-full bg-rose-900 text-white py-3 rounded-full hover:bg-rose-800 transition-colors font-semibold text-sm mb-2"
+            >
               Checkout
             </button>
             <button

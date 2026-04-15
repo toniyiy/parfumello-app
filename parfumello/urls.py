@@ -1,11 +1,13 @@
 from django.urls import include, path
-from . import views
+from django.conf import settings
+from django.conf.urls.static import static
+from .views import PerfumeDetailViewSet
 
 urlpatterns = [
-    path("", views.index, name='index'),
-    path("perfumes/", views.perfumes, name='perfumes'),
-    path("parfumello/", views.index, name='parfumello'),
     path("api/", include("parfumello.api_urls")),
     path("api-auth/", include("rest_framework.urls")),
-    path("perfumes/<int:pk>/", views.PerfumeDetailViewSet.as_view(), name='perfume-detail'),
+    path("perfumes/<int:pk>/", PerfumeDetailViewSet.as_view(), name='perfume-detail'),
 ]
+
+if settings.DEBUG:
+    urlpatterns += static(settings.MEDIA_URL, document_root=settings.MEDIA_ROOT)

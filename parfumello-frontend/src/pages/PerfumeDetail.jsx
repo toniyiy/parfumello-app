@@ -1,7 +1,7 @@
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import { useEffect, useState } from "react";
-import axios from "axios";
-import { Star, Trash2 } from "lucide-react";
+import api from "../api";
+import { Star, Trash2, Heart } from "lucide-react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
 import { useAuth } from "../context/AuthContext";
@@ -52,7 +52,6 @@ const StarPicker = ({ value, onChange }) => {
 };
 
 function ReviewForm({ perfumeId, existingReview, onSaved }) {
-  const { token } = useAuth();
   const [rating, setRating] = useState(existingReview?.rating || 0);
   const [comment, setComment] = useState(existingReview?.comment || "");
   const [error, setError] = useState("");
@@ -64,19 +63,10 @@ function ReviewForm({ perfumeId, existingReview, onSaved }) {
     setError("");
     setLoading(true);
     try {
-      const headers = { Authorization: `Bearer ${token}` };
       if (existingReview) {
-        await axios.patch(
-          `http://127.0.0.1:8000/api/reviews/${existingReview.id}/`,
-          { rating, comment },
-          { headers }
-        );
+        await api.patch(`/api/reviews/${existingReview.id}/`, { rating, comment });
       } else {
-        await axios.post(
-          "http://127.0.0.1:8000/api/reviews/",
-          { perfume: perfumeId, rating, comment },
-          { headers }
-        );
+        await api.post("/api/reviews/", { perfume: perfumeId, rating, comment });
       }
       onSaved();
     } catch (err) {
@@ -128,8 +118,9 @@ function ReviewForm({ perfumeId, existingReview, onSaved }) {
 
 function PerfumeDetail() {
   const { id } = useParams();
-  const { user, token } = useAuth();
+  const { user, favorites, toggleFavorite } = useAuth();
   const { addToCart } = useCart();
+  const navigate = useNavigate();
   const [perfume, setPerfume] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -137,8 +128,8 @@ function PerfumeDetail() {
   const [showForm, setShowForm] = useState(false);
 
   function fetchPerfume() {
-    axios
-      .get(`http://127.0.0.1:8000/api/perfumes/${id}/`)
+    api
+      .get(`/api/perfumes/${id}/`)
       .then((res) => { setPerfume(res.data); setLoading(false); })
       .catch((err) => { console.error(err); setError("Failed to load perfume details."); setLoading(false); });
   }
@@ -157,9 +148,7 @@ function PerfumeDetail() {
 
   async function handleDeleteReview(reviewId) {
     try {
-      await axios.delete(`http://127.0.0.1:8000/api/reviews/${reviewId}/`, {
-        headers: { Authorization: `Bearer ${token}` },
-      });
+      await api.delete(`/api/reviews/${reviewId}/`);
       fetchPerfume();
     } catch (err) {
       console.error("Failed to delete review", err);
@@ -196,7 +185,6 @@ function PerfumeDetail() {
 
       <main className="max-w-6xl mx-auto px-6 py-16">
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-start">
-          {/* Image */}
           <div className="rounded-3xl overflow-hidden bg-white/70 backdrop-blur-sm shadow-lg border border-rose-100">
             <div className="h-[520px] bg-gradient-to-br from-rose-100 to-amber-50">
               <img
@@ -207,7 +195,6 @@ function PerfumeDetail() {
             </div>
           </div>
 
-          {/* Content */}
           <div className="pt-4">
             <p className="text-sm uppercase tracking-[0.25em] text-rose-500 mb-3">
               {perfume.brand?.name || "Luxury Fragrance"}
@@ -234,15 +221,32 @@ function PerfumeDetail() {
                   ? `$${perfume.price}`
                   : "Price unavailable"}
               </span>
-              <button
-                onClick={() => addToCart(perfume)}
-                className="bg-rose-900 text-white px-8 py-3 rounded-full hover:bg-rose-800 transition-colors shadow-md"
-              >
-                Add to Cart
-              </button>
+              <div className="flex items-center gap-3">
+                <button
+                  onClick={() => {
+                    if (!user) { navigate("/login"); return; }
+                    toggleFavorite(perfume.id);
+                  }}
+                  className="w-12 h-12 flex items-center justify-center rounded-full border border-rose-200 hover:bg-rose-50 transition-colors"
+                  title={favorites.includes(perfume.id) ? "Remove from favourites" : "Add to favourites"}
+                >
+                  <Heart
+                    className={`w-6 h-6 transition-colors ${
+                      favorites.includes(perfume.id)
+                        ? "fill-rose-500 text-rose-500"
+                        : "text-gray-400"
+                    }`}
+                  />
+                </button>
+                <button
+                  onClick={() => addToCart(perfume)}
+                  className="bg-rose-900 text-white px-8 py-3 rounded-full hover:bg-rose-800 transition-colors shadow-md"
+                >
+                  Add to Cart
+                </button>
+              </div>
             </div>
 
-            {/* Notes */}
             <div className="mb-10">
               <h2 className="text-xl font-semibold text-gray-900 mb-4">Fragrance Notes</h2>
               <div className="flex flex-wrap gap-3">
@@ -270,7 +274,6 @@ function PerfumeDetail() {
           </div>
         </div>
 
-        {/* Reviews */}
         <section className="mt-20">
           <div className="mb-8 flex items-end justify-between flex-wrap gap-4">
             <div>
@@ -278,7 +281,6 @@ function PerfumeDetail() {
               <h2 className="text-3xl font-semibold text-gray-900">Reviews</h2>
             </div>
 
-            {/* Leave a review button — only if logged in and no review yet */}
             {user && !myReview && !showForm && (
               <button
                 onClick={() => setShowForm(true)}
@@ -289,7 +291,6 @@ function PerfumeDetail() {
             )}
           </div>
 
-          {/* New review form */}
           {user && showForm && !myReview && (
             <div className="bg-white/80 backdrop-blur-sm border border-rose-100 rounded-2xl p-6 shadow-sm mb-6">
               <h3 className="text-lg font-semibold text-gray-900 mb-4">Your review</h3>
@@ -297,7 +298,6 @@ function PerfumeDetail() {
             </div>
           )}
 
-          {/* Prompt to log in */}
           {!user && (
             <p className="text-gray-500 text-sm mb-6">
               <a href="/login" className="text-rose-900 underline">Sign in</a> to leave a review.

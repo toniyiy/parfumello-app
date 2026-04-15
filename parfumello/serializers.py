@@ -1,7 +1,7 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from .models import Perfume, Brand, Note, Profile, UserReview
+from .models import Perfume, Brand, Note, Profile, UserReview, Order, OrderItem
 
 User = get_user_model()
 
@@ -40,10 +40,22 @@ class RegisterSerializer(serializers.ModelSerializer):
 
 class ProfileSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True)
+    favorite_perfumes = serializers.SerializerMethodField()
+    profile_pic_url = serializers.SerializerMethodField()
 
     class Meta:
         model = Profile
-        fields = ["user", "favorite_perfumes", "profile_pic"]
+        fields = ["user", "favorite_perfumes", "profile_pic_url"]
+
+    def get_profile_pic_url(self, obj):
+        request = self.context.get('request')
+        if obj.profile_pic and request:
+            return request.build_absolute_uri(obj.profile_pic.url)
+        return None
+
+    def get_favorite_perfumes(self, obj):
+        request = self.context.get('request')
+        return PerfumeListSerializer(obj.favorite_perfumes.all(), many=True, context={'request': request}).data
 
 class ReviewSerializer(serializers.ModelSerializer):
     user = UserSerializer(read_only=True) 
@@ -59,7 +71,7 @@ class PerfumeListSerializer(serializers.ModelSerializer):
 
     class Meta:
         model = Perfume
-        fields = ["id", "name", "brand", "average_rating", "price", "sex", "image_url"]
+        fields = ["id", "name", "brand", "average_rating", "price", "sex", "release_year", "image_url"]
 
     def get_average_rating(self, obj):
         return obj.get_average_rating()
@@ -69,6 +81,20 @@ class PerfumeListSerializer(serializers.ModelSerializer):
         if obj.display_photo and request:
             return request.build_absolute_uri(obj.display_photo.url)
         return None
+
+class OrderItemSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = OrderItem
+        fields = ['id', 'perfume', 'perfume_name', 'price', 'quantity']
+
+
+class OrderSerializer(serializers.ModelSerializer):
+    items = OrderItemSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Order
+        fields = ['id', 'status', 'total', 'full_name', 'email', 'address', 'city', 'postal_code', 'country', 'created_at', 'items']
+
 
 class PerfumeDetailSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)

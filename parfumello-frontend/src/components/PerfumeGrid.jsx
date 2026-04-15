@@ -1,7 +1,7 @@
 import { Loader2 } from "lucide-react";
 import PerfumeCard from "./PerfumeCard";
 
-function PerfumeGrid({ perfumes, perfumeImages, loading, error }) {
+function PerfumeGrid({ perfumes, loading, error }) {
   if (loading) {
     return (
       <div className="flex flex-col items-center justify-center py-20">
@@ -40,7 +40,7 @@ function PerfumeGrid({ perfumes, perfumeImages, loading, error }) {
         </div>
       ) : (
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {perfumes.map((perfume, index) => (
+          {perfumes.map((perfume) => (
             <PerfumeCard
               key={perfume.id}
               perfume={perfume}

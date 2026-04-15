@@ -1,6 +1,6 @@
-import { useEffect, useState } from "react";
-import axios from "axios";
-import { Search, ShoppingBag, User, ChevronDown, LogOut } from "lucide-react";
+import { useEffect, useState, useRef } from "react";
+import api from "../api";
+import { Search, ShoppingBag, User, ChevronDown } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -14,6 +14,18 @@ function Navbar() {
   const [shopOpen, setShopOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef(null);
+
+  useEffect(() => {
+    function handleClickOutside(e) {
+      if (profileMenuRef.current && !profileMenuRef.current.contains(e.target)) {
+        setProfileMenuOpen(false);
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, []);
   const [mensPerfumes, setMensPerfumes] = useState([]);
   const [womensPerfumes, setWomensPerfumes] = useState([]);
   const [unisexPerfumes, setUnisexPerfumes] = useState([]);
@@ -23,8 +35,8 @@ function Navbar() {
   };
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/perfumes/")
+    api
+      .get("/api/perfumes/")
       .then((res) => {
         const data = res.data.results || res.data;
 
@@ -86,6 +98,12 @@ function Navbar() {
                       </p>
 
                       <div className="flex flex-col gap-3">
+                        <Link
+                          to="/shop/new"
+                          className="text-rose-500 font-medium hover:text-rose-700 transition-colors"
+                        >
+                          ✦ New Arrivals
+                        </Link>
                         <Link
                           to="/shop"
                           className="text-gray-800 hover:text-rose-900 transition-colors"
@@ -214,17 +232,47 @@ function Navbar() {
             </button>
 
             {user ? (
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-gray-700 hidden md:block">
-                  {user.username}
-                </span>
+              <div className="relative" ref={profileMenuRef}>
                 <button
-                  onClick={() => { logout(); navigate("/"); }}
-                  className="p-2 hover:bg-rose-50 rounded-full transition-colors"
-                  title="Sign out"
+                  onClick={() => setProfileMenuOpen((o) => !o)}
+                  className="w-9 h-9 rounded-full overflow-hidden border-2 border-rose-200 hover:border-rose-400 transition-colors focus:outline-none"
+                  title={user.username}
                 >
-                  <LogOut className="w-5 h-5 text-gray-700" />
+                  {user.profile_pic_url ? (
+                    <img src={user.profile_pic_url} alt="Profile" className="w-full h-full object-cover" />
+                  ) : (
+                    <div className="w-full h-full bg-rose-100 flex items-center justify-center">
+                      <User className="w-4 h-4 text-rose-500" />
+                    </div>
+                  )}
                 </button>
+
+                {profileMenuOpen && (
+                  <div className="absolute right-0 top-full mt-2 w-44 bg-white rounded-2xl shadow-lg border border-rose-100 py-2 z-50">
+                    <p className="px-4 py-1 text-xs text-gray-400 truncate">{user.username}</p>
+                    <hr className="border-rose-100 my-1" />
+                    <Link
+                      to="/profile"
+                      onClick={() => setProfileMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 transition-colors"
+                    >
+                      My Profile
+                    </Link>
+                    <Link
+                      to="/orders"
+                      onClick={() => setProfileMenuOpen(false)}
+                      className="block px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 transition-colors"
+                    >
+                      My Orders
+                    </Link>
+                    <button
+                      onClick={() => { logout(); navigate("/"); setProfileMenuOpen(false); }}
+                      className="w-full text-left px-4 py-2 text-sm text-gray-700 hover:bg-rose-50 transition-colors"
+                    >
+                      Sign out
+                    </button>
+                  </div>
+                )}
               </div>
             ) : (
               <Link

@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { Search, X } from "lucide-react";
-import axios from "axios";
+import api from "../api";
 import { useNavigate } from "react-router-dom";
 
 function SearchModal({ open, onClose }) {
@@ -10,7 +10,6 @@ function SearchModal({ open, onClose }) {
   const inputRef = useRef(null);
   const navigate = useNavigate();
 
-  // Focus input when modal opens
   useEffect(() => {
     if (open) {
       setQuery("");
@@ -19,13 +18,12 @@ function SearchModal({ open, onClose }) {
     }
   }, [open]);
 
-  // Debounced search
   useEffect(() => {
     if (!query.trim()) { setResults([]); return; }
     const timer = setTimeout(() => {
       setLoading(true);
-      axios
-        .get(`http://127.0.0.1:8000/api/perfumes/?search=${encodeURIComponent(query)}`)
+      api
+        .get(`/api/perfumes/?search=${encodeURIComponent(query)}`)
         .then((res) => setResults(res.data.results || res.data))
         .catch(() => setResults([]))
         .finally(() => setLoading(false));

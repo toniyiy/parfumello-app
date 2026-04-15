@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import axios from "axios";
+import api from "../api";
 import Navbar from "../components/Navbar";
 import HeroSection from "../components/HeroSection";
 import PerfumeGrid from "../components/PerfumeGrid";
@@ -11,8 +11,8 @@ function HomePage() {
   const [error, setError] = useState("");
 
   useEffect(() => {
-    axios
-      .get("http://127.0.0.1:8000/api/perfumes/")
+    api
+      .get("/api/perfumes/")
       .then((response) => {
         setPerfumes(response.data.results || response.data);
         setLoading(false);

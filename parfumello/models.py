@@ -46,6 +46,40 @@ def create_user_profile(sender, instance, created, **kwargs):
     if created:
         Profile.objects.create(user=instance)
 
+class Order(models.Model):
+    STATUS_CHOICES = [
+        ('paid', 'Paid'),
+        ('shipped', 'Shipped'),
+        ('delivered', 'Delivered'),
+        ('cancelled', 'Cancelled'),
+    ]
+    user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='orders')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='paid')
+    total = models.FloatField()
+    stripe_payment_intent_id = models.CharField(max_length=200, unique=True)
+    full_name = models.CharField(max_length=200)
+    email = models.EmailField()
+    address = models.CharField(max_length=300)
+    city = models.CharField(max_length=100)
+    postal_code = models.CharField(max_length=20)
+    country = models.CharField(max_length=100)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"Order #{self.id} by {self.user.username}"
+
+
+class OrderItem(models.Model):
+    order = models.ForeignKey(Order, on_delete=models.CASCADE, related_name='items')
+    perfume = models.ForeignKey(Perfume, on_delete=models.SET_NULL, null=True, blank=True)
+    perfume_name = models.CharField(max_length=100)
+    price = models.FloatField()
+    quantity = models.PositiveIntegerField()
+
+    def __str__(self):
+        return f"{self.quantity}x {self.perfume_name}"
+
+
 class UserReview(models.Model):
     perfume = models.ForeignKey(Perfume, on_delete=models.CASCADE, related_name='reviews')
     user = models.ForeignKey(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='reviews')

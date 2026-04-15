@@ -5,6 +5,13 @@ import HomePage from "./pages/HomePage";
 import PerfumeDetail from "./pages/PerfumeDetail";
 import LoginPage from "./pages/LoginPage";
 import RegisterPage from "./pages/RegisterPage";
+import ProfilePage from "./pages/ProfilePage";
+import AboutPage from "./pages/AboutPage";
+import ContactPage from "./pages/ContactPage";
+import ShopPage from "./pages/ShopPage";
+import CheckoutPage from "./pages/CheckoutPage";
+import OrderConfirmationPage from "./pages/OrderConfirmationPage";
+import OrdersPage from "./pages/OrdersPage";
 
 function App() {
   return (
@@ -16,6 +23,14 @@ function App() {
           <Route path="/perfumes/:id" element={<PerfumeDetail />} />
           <Route path="/login" element={<LoginPage />} />
           <Route path="/register" element={<RegisterPage />} />
+          <Route path="/profile" element={<ProfilePage />} />
+          <Route path="/about" element={<AboutPage />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/shop" element={<ShopPage />} />
+          <Route path="/shop/:gender" element={<ShopPage />} />
+          <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/checkout" element={<CheckoutPage />} />
+          <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
         </Routes>
       </BrowserRouter>
       </CartProvider>
