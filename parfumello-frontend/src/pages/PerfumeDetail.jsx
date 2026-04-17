@@ -1,4 +1,4 @@
-import { useParams, useNavigate } from "react-router-dom";
+import { useParams, useNavigate, Link } from "react-router-dom";
 import { useEffect, useState } from "react";
 import api from "../api";
 import { Star, Trash2, Heart } from "lucide-react";
@@ -196,19 +196,35 @@ function PerfumeDetail() {
           </div>
 
           <div className="pt-4">
-            <p className="text-sm uppercase tracking-[0.25em] text-rose-500 mb-3">
+            <Link
+              to={`/brands/${perfume.brand?.id}`}
+              className="text-sm uppercase tracking-[0.25em] text-rose-500 hover:text-rose-700 transition-colors mb-3 inline-block"
+            >
               {perfume.brand?.name || "Luxury Fragrance"}
-            </p>
+            </Link>
 
             <h1 className="text-4xl md:text-5xl font-semibold text-gray-900 leading-tight mb-4">
               {perfume.name}
             </h1>
 
-            <div className="flex items-center gap-3 mb-6">
+            <div className="flex items-center gap-3 mb-4">
               <StarRating rating={perfume.average_rating || 0} size={20} />
               <span className="text-gray-600 text-sm">
                 {perfume.average_rating ? `${perfume.average_rating}/5` : "No ratings yet"}
               </span>
+            </div>
+
+            <div className="flex items-center gap-2 mb-6">
+              {perfume.release_year && (
+                <span className="px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-xs text-gray-500">
+                  {perfume.release_year}
+                </span>
+              )}
+              {perfume.sex && (
+                <span className="px-3 py-1 rounded-full bg-rose-50 border border-rose-100 text-xs text-gray-500 capitalize">
+                  {perfume.sex}
+                </span>
+              )}
             </div>
 
             <p className="text-lg text-gray-600 leading-8 mb-8">
@@ -247,32 +263,42 @@ function PerfumeDetail() {
               </div>
             </div>
 
-            <div className="mb-10">
-              <h2 className="text-xl font-semibold text-gray-900 mb-4">Fragrance Notes</h2>
-              <div className="flex flex-wrap gap-3">
-                {perfume.notes && perfume.notes.length > 0 ? (
-                  perfume.notes.map((note) => (
-                    <span
-                      key={note.id}
-                      className="px-4 py-2 rounded-full bg-white border border-rose-100 text-gray-700 shadow-sm"
-                    >
-                      {note.name}
-                    </span>
-                  ))
-                ) : (
-                  <p className="text-gray-500">No notes listed.</p>
-                )}
-              </div>
-            </div>
-
-            <div className="bg-white/80 backdrop-blur-sm border border-rose-100 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-lg font-semibold text-gray-900 mb-2">Why you'll love it</h3>
-              <p className="text-gray-600 leading-7">
-                Designed to feel elegant, modern, and memorable — a fragrance that fits both everyday wear and special occasions.
-              </p>
-            </div>
           </div>
         </div>
+
+        {perfume.notes && perfume.notes.length > 0 && (
+          <div className="mt-16">
+            <h2 className="text-2xl font-semibold text-gray-900 text-center mb-8">Fragrance Notes</h2>
+            {(() => {
+              const tiers = [
+                { key: 'top', label: 'Top Notes' },
+                { key: 'middle', label: 'Heart Notes' },
+                { key: 'base', label: 'Base Notes' },
+              ];
+              return (
+                <div className="flex flex-col items-center gap-4">
+                  {tiers.map(({ key, label }) => {
+                    const tierNotes = perfume.notes.filter(n => n.tier === key);
+                    if (tierNotes.length === 0) return null;
+                    const widths = { top: 'max-w-[40%]', middle: 'max-w-[65%]', base: 'max-w-[90%]' };
+                    return (
+                      <div key={key} className={`w-full ${widths[key]}`}>
+                        <p className="text-xs uppercase tracking-widest text-rose-400 text-center mb-2">{label}</p>
+                        <div className="flex flex-wrap justify-center gap-2">
+                          {tierNotes.map(note => (
+                            <span key={note.id} className="px-4 py-2 rounded-full bg-white border border-rose-100 text-gray-700 shadow-sm text-sm">
+                              {note.name}
+                            </span>
+                          ))}
+                        </div>
+                      </div>
+                    );
+                  })}
+                </div>
+              );
+            })()}
+          </div>
+        )}
 
         <section className="mt-20">
           <div className="mb-8 flex items-end justify-between flex-wrap gap-4">

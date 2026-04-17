@@ -3,7 +3,7 @@ from django.conf import settings
 
 import stripe
 
-from django_filters.rest_framework import FilterSet, CharFilter
+from django_filters.rest_framework import FilterSet, CharFilter, NumberFilter
 from django.contrib.auth import get_user_model
 from rest_framework import viewsets, permissions, generics, status
 from rest_framework.response import Response
@@ -24,17 +24,30 @@ User = get_user_model()
 
 class PerfumeFilter(FilterSet):
     brand = CharFilter(field_name='brand__name', lookup_expr='icontains')
+    brand_id = NumberFilter(field_name='brand__id')
     note = CharFilter(field_name='notes__name', lookup_expr='icontains')
     sex = CharFilter(field_name='sex', lookup_expr='iexact')
     class Meta:
         model = models.Perfume
-        fields = ['brand', 'note', 'sex']
+        fields = ['brand', 'brand_id', 'note', 'sex']
 
 
 class BrandViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Brand.objects.all()
     serializer_class = BrandSerializer
     permission_classes = [permissions.AllowAny]
+
+    @action(detail=False, methods=['get'], url_path='top')
+    def top(self, request):
+        from django.db.models import Sum, F
+        top_brands = (
+            models.Brand.objects
+            .annotate(total_sold=Sum('perfumes__orderitem__quantity'))
+            .filter(total_sold__isnull=False)
+            .order_by('-total_sold')[:3]
+        )
+        serializer = self.get_serializer(top_brands, many=True, context={'request': request})
+        return Response(serializer.data)
 
 class PerfumeViewSet(viewsets.ReadOnlyModelViewSet):
     queryset = models.Perfume.objects.all()

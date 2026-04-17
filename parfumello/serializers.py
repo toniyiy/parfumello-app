@@ -1,19 +1,35 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
 from django.contrib.auth.password_validation import validate_password
-from .models import Perfume, Brand, Note, Profile, UserReview, Order, OrderItem
+from .models import Perfume, Brand, Note, PerfumeNote, Profile, UserReview, Order, OrderItem
 
 User = get_user_model()
 
 class BrandSerializer(serializers.ModelSerializer):
+    logo_url = serializers.SerializerMethodField()
+
     class Meta:
         model = Brand
-        fields = ["id", "name"]
+        fields = ["id", "name", "country", "description", "logo_url"]
+
+    def get_logo_url(self, obj):
+        request = self.context.get('request')
+        if obj.logo and request:
+            return request.build_absolute_uri(obj.logo.url)
+        return None
 
 class NoteSerializer(serializers.ModelSerializer):
     class Meta:
         model = Note
         fields = ["id", "name"]
+
+class PerfumeNoteSerializer(serializers.ModelSerializer):
+    id = serializers.IntegerField(source='note.id')
+    name = serializers.CharField(source='note.name')
+
+    class Meta:
+        model = PerfumeNote
+        fields = ["id", "name", "tier"]
 
 class UserSerializer(serializers.ModelSerializer):
     class Meta:
@@ -98,7 +114,7 @@ class OrderSerializer(serializers.ModelSerializer):
 
 class PerfumeDetailSerializer(serializers.ModelSerializer):
     brand = BrandSerializer(read_only=True)
-    notes = NoteSerializer(many=True, read_only=True)
+    notes = PerfumeNoteSerializer(source='perfume_notes', many=True, read_only=True)
     reviews = ReviewSerializer(many=True, read_only=True)
     average_rating = serializers.SerializerMethodField()
     image_url = serializers.SerializerMethodField()

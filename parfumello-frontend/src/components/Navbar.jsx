@@ -12,9 +12,11 @@ function Navbar() {
   const { totalItems } = useCart();
   const navigate = useNavigate();
   const [shopOpen, setShopOpen] = useState(false);
+  const [brandsOpen, setBrandsOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [brands, setBrands] = useState([]);
   const profileMenuRef = useRef(null);
 
   useEffect(() => {
@@ -33,6 +35,12 @@ function Navbar() {
   const shuffleArray = (array) => {
     return [...array].sort(() => Math.random() - 0.5);
   };
+
+  useEffect(() => {
+    api.get("/api/brands/top/")
+      .then((res) => setBrands(res.data.results || res.data))
+      .catch((err) => console.error("Failed to fetch brands:", err));
+  }, []);
 
   useEffect(() => {
     api
@@ -201,6 +209,58 @@ function Navbar() {
                           </p>
                         )}
                       </div>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            <div
+              className="relative"
+              onMouseEnter={() => setBrandsOpen(true)}
+              onMouseLeave={() => setBrandsOpen(false)}
+            >
+              <button className="flex items-center gap-1 text-gray-700 hover:text-rose-900 transition-colors">
+                Brands
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${brandsOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {brandsOpen && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4">
+                  <div className="min-w-[220px] rounded-3xl border border-rose-100 bg-white/95 backdrop-blur-xl shadow-2xl p-4">
+                    <p className="text-xs uppercase tracking-[0.25em] text-rose-400 mb-3 px-3">Top Houses</p>
+                    {brands.length === 0 ? (
+                      <p className="text-sm text-gray-400 px-3">No data yet.</p>
+                    ) : (
+                      <div className="flex flex-col gap-1 mb-3">
+                        {brands.map((brand) => (
+                          <Link
+                            key={brand.id}
+                            to={`/brands/${brand.id}`}
+                            className="flex items-center gap-3 px-3 py-2 rounded-2xl hover:bg-rose-50 transition-colors group"
+                          >
+                            {brand.logo_url ? (
+                              <img src={brand.logo_url} alt={brand.name} className="w-8 h-8 object-contain rounded-lg border border-rose-100 bg-white p-0.5" />
+                            ) : (
+                              <div className="w-8 h-8 rounded-lg bg-rose-100 flex items-center justify-center text-xs font-serif text-rose-400">
+                                {brand.name[0]}
+                              </div>
+                            )}
+                            <div>
+                              <p className="text-gray-800 group-hover:text-rose-900 transition-colors text-sm font-medium">{brand.name}</p>
+                              {brand.country && <p className="text-xs text-gray-400">{brand.country}</p>}
+                            </div>
+                          </Link>
+                        ))}
+                      </div>
+                    )}
+                    <div className="border-t border-rose-100 pt-3 px-3">
+                      <Link
+                        to="/brands"
+                        className="text-sm text-rose-900 hover:text-rose-700 transition-colors font-medium"
+                      >
+                        Browse all houses →
+                      </Link>
                     </div>
                   </div>
                 </div>

@@ -8,6 +8,8 @@ from django.dispatch import receiver
 class Brand(models.Model):
     name = models.CharField(max_length=100)
     country = models.CharField(max_length=100)
+    description = models.TextField(null=True, blank=True)
+    logo = models.ImageField(upload_to='brand_pics/', null=True, blank=True)
     def __str__(self):
         return self.name
 
@@ -17,12 +19,30 @@ class Note(models.Model):
     def __str__(self):
         return self.name
 
+class PerfumeNote(models.Model):
+    TIER_CHOICES = [
+        ('top', 'Top'),
+        ('middle', 'Middle'),
+        ('base', 'Base'),
+    ]
+    perfume = models.ForeignKey('Perfume', on_delete=models.CASCADE, related_name='perfume_notes')
+    note = models.ForeignKey(Note, on_delete=models.CASCADE, related_name='perfume_notes')
+    tier = models.CharField(max_length=10, choices=TIER_CHOICES, default='top')
+
+    class Meta:
+        unique_together = ('perfume', 'note')
+        ordering = ['tier', 'note__name']
+
+    def __str__(self):
+        return f"{self.note.name} ({self.tier}) in {self.perfume.name}"
+
+
 class Perfume(models.Model):
     name = models.CharField(max_length=100)
     brand = models.ForeignKey(Brand, on_delete=models.CASCADE, related_name='perfumes')
     release_year = models.IntegerField()
     description = models.TextField()
-    notes = models.ManyToManyField(Note, related_name='perfumes')
+    notes = models.ManyToManyField(Note, through='PerfumeNote', related_name='perfumes')
     display_photo = models.ImageField(upload_to='display_photos/', null=True, blank=True)
     price = models.FloatField(default=0.0)
     sex = models.CharField(max_length=20, choices=[('male', 'Male'), ('female', 'Female'), ('unisex', 'Unisex')], default='unisex')

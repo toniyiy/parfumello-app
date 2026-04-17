@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef } from "react";
 import api from "../api";
 import { Link, useNavigate } from "react-router-dom";
-import { Camera, Heart, X, Pencil, Check } from "lucide-react";
+import { Camera, Heart, X, Pencil, Check, Package } from "lucide-react";
 import { useAuth } from "../context/AuthContext";
 import Navbar from "../components/Navbar";
+import Footer from "../components/Footer";
 
 function ProfilePage() {
   const { user, refreshProfile, updateUsername, toggleFavorite } = useAuth();
@@ -82,9 +83,9 @@ function ProfilePage() {
   if (!user) return null;
 
   return (
-    <>
+    <div className="min-h-screen bg-rose-50/30 flex flex-col">
       <Navbar />
-      <div className="min-h-screen bg-rose-50/30">
+      <div className="flex-1">
         <div className="max-w-4xl mx-auto px-4 py-12">
 
           {/* Profile header */}
@@ -168,6 +169,13 @@ function ProfilePage() {
                 {uploading && (
                   <p className="text-xs text-rose-400 mt-2">Uploading photo...</p>
                 )}
+                <Link
+                  to="/orders"
+                  className="inline-flex items-center gap-2 mt-4 text-sm text-rose-900 border border-rose-200 px-4 py-2 rounded-full hover:bg-rose-50 transition-colors"
+                >
+                  <Package className="w-4 h-4" />
+                  My Orders
+                </Link>
               </div>
             </div>
           </div>
@@ -230,7 +238,8 @@ function ProfilePage() {
 
         </div>
       </div>
-    </>
+      <Footer />
+    </div>
   );
 }
 

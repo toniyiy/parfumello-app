@@ -12,6 +12,8 @@ import ShopPage from "./pages/ShopPage";
 import CheckoutPage from "./pages/CheckoutPage";
 import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrdersPage from "./pages/OrdersPage";
+import BrandPage from "./pages/BrandPage";
+import BrandsPage from "./pages/BrandsPage";
 
 function App() {
   return (
@@ -29,6 +31,8 @@ function App() {
           <Route path="/shop" element={<ShopPage />} />
           <Route path="/shop/:gender" element={<ShopPage />} />
           <Route path="/orders" element={<OrdersPage />} />
+          <Route path="/brands" element={<BrandsPage />} />
+          <Route path="/brands/:id" element={<BrandPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
         </Routes>

@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Brand, Note, Perfume, Profile, UserReview, Order, OrderItem
+from .models import Brand, Note, Perfume, PerfumeNote, Profile, UserReview, Order, OrderItem
 
 
 class OrderItemInline(admin.TabularInline):
@@ -17,8 +17,17 @@ class OrderAdmin(admin.ModelAdmin):
     inlines = [OrderItemInline]
 
 
+class PerfumeNoteInline(admin.TabularInline):
+    model = PerfumeNote
+    extra = 1
+
+
+@admin.register(Perfume)
+class PerfumeAdmin(admin.ModelAdmin):
+    inlines = [PerfumeNoteInline]
+
+
 admin.site.register(Brand)
 admin.site.register(Note)
-admin.site.register(Perfume)
 admin.site.register(Profile)
 admin.site.register(UserReview)

@@ -81,9 +81,12 @@ function PerfumeCard({ perfume }) {
             {perfume.name}
           </h4>
 
-          <p className="text-gray-500 text-sm mb-3">
+          <button
+            onClick={(e) => { e.preventDefault(); navigate(`/brands/${perfume.brand?.id}`); }}
+            className="text-gray-500 text-sm mb-3 hover:text-rose-500 transition-colors"
+          >
             {perfume.brand?.name || "Unknown brand"}
-          </p>
+          </button>
 
           {perfume.description && (
             <p className="text-gray-600 text-sm mb-4 line-clamp-2">
