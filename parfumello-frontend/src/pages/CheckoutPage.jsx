@@ -274,11 +274,6 @@ function CheckoutForm({ items, totalPrice }) {
                 {loading ? "Processing…" : `Pay $${totalPrice.toFixed(2)}`}
               </button>
 
-              {import.meta.env.DEV && (
-                <p className="text-xs text-center text-gray-400">
-                  Test card: 4242 4242 4242 4242 · any future date · any CVC
-                </p>
-              )}
             </form>
           )}
         </div>

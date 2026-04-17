@@ -43,10 +43,10 @@ function OrderConfirmationPage() {
               Continue Shopping
             </Link>
             <Link
-              to="/profile"
+              to="/orders"
               className="px-8 py-3 border border-rose-200 text-rose-900 rounded-full text-sm font-semibold hover:border-rose-400 transition-colors"
             >
-              View Profile
+              View Orders
             </Link>
           </div>
         </div>
