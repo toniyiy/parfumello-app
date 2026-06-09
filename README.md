@@ -158,3 +158,9 @@ Create a `.env` file in the root with the following:
 SECRET_KEY=your_django_secret_key
 STRIPE_SECRET_KEY=your_stripe_secret_key
 ```
+
+## ML Models
+
+The trained model files (`ml/`) are not included in this repo due to their size (the
+features file alone is ~600MB). The compatibility/similarity endpoints require these
+files to be generated locally before they will work.

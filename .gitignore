@@ -16,6 +16,9 @@ db.sqlite3
 db.sqlite3-journal
 media/
 
+# ML models (large binary files, generated separately)
+ml/
+
 # Virtual environment
 venv/
 env/
