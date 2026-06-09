@@ -1,6 +1,6 @@
 import { useEffect, useState, useRef } from "react";
 import api from "../api";
-import { Search, ShoppingBag, User, ChevronDown } from "lucide-react";
+import { Search, ShoppingBag, User, ChevronDown, Sparkles, ScanSearch } from "lucide-react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../context/AuthContext";
 import { useCart } from "../context/CartContext";
@@ -13,6 +13,7 @@ function Navbar() {
   const navigate = useNavigate();
   const [shopOpen, setShopOpen] = useState(false);
   const [brandsOpen, setBrandsOpen] = useState(false);
+  const [discoverOpen, setDiscoverOpen] = useState(false);
   const [cartOpen, setCartOpen] = useState(false);
   const [searchOpen, setSearchOpen] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
@@ -280,6 +281,52 @@ function Navbar() {
             >
               Contact
             </Link>
+
+            <div
+              className="relative"
+              onMouseEnter={() => setDiscoverOpen(true)}
+              onMouseLeave={() => setDiscoverOpen(false)}
+            >
+              <button className="flex items-center gap-1.5 text-rose-600 hover:text-rose-900 transition-colors font-medium">
+                <Sparkles className="w-4 h-4" />
+                Discover
+                <ChevronDown className={`w-4 h-4 transition-transform duration-200 ${discoverOpen ? "rotate-180" : ""}`} />
+              </button>
+
+              {discoverOpen && (
+                <div className="absolute left-1/2 -translate-x-1/2 top-full pt-4">
+                  <div className="min-w-[210px] rounded-3xl border border-rose-100 bg-white/95 backdrop-blur-xl shadow-2xl p-4">
+                    <p className="text-xs uppercase tracking-[0.25em] text-rose-400 mb-3 px-3">AI Tools</p>
+                    <div className="flex flex-col gap-1">
+                      <Link
+                        to="/compatibility"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-rose-50 transition-colors group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center flex-shrink-0">
+                          <Sparkles className="w-4 h-4 text-rose-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 group-hover:text-rose-900 transition-colors">Match Fragrances</p>
+                          <p className="text-xs text-gray-400">Compatibility score</p>
+                        </div>
+                      </Link>
+                      <Link
+                        to="/similar"
+                        className="flex items-center gap-3 px-3 py-2.5 rounded-2xl hover:bg-rose-50 transition-colors group"
+                      >
+                        <div className="w-8 h-8 rounded-xl bg-rose-100 flex items-center justify-center flex-shrink-0">
+                          <ScanSearch className="w-4 h-4 text-rose-500" />
+                        </div>
+                        <div>
+                          <p className="text-sm font-medium text-gray-800 group-hover:text-rose-900 transition-colors">Find Similar</p>
+                          <p className="text-xs text-gray-400">Top 5 similar scents</p>
+                        </div>
+                      </Link>
+                    </div>
+                  </div>
+                </div>
+              )}
+            </div>
           </div>
 
           <div className="flex items-center space-x-4">

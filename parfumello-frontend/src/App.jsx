@@ -14,6 +14,8 @@ import OrderConfirmationPage from "./pages/OrderConfirmationPage";
 import OrdersPage from "./pages/OrdersPage";
 import BrandPage from "./pages/BrandPage";
 import BrandsPage from "./pages/BrandsPage";
+import CompatibilityPage from "./pages/CompatibilityPage";
+import SimilarPage from "./pages/SimilarPage";
 
 function App() {
   return (
@@ -35,6 +37,8 @@ function App() {
           <Route path="/brands/:id" element={<BrandPage />} />
           <Route path="/checkout" element={<CheckoutPage />} />
           <Route path="/order-confirmation" element={<OrderConfirmationPage />} />
+          <Route path="/compatibility" element={<CompatibilityPage />} />
+          <Route path="/similar" element={<SimilarPage />} />
         </Routes>
       </BrowserRouter>
       </CartProvider>
